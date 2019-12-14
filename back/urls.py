@@ -25,5 +25,7 @@ from rest_framework import routers
 
 urlpatterns = [
     url('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^get_papers/', views.paperList)
+    url(r'^get_papers_info/', views.paperInfo),
+    url(r'^get_papers/', views.paperGet),
+    url(r'^get_paper_by_id/', views.paperGetID),
 ]

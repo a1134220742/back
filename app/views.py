@@ -130,16 +130,4 @@ def get_follows(request):
         return JsonResponse(result, safe=False)
 
 
-@api_view(['GET'])
-def get_followst(request):
-    if request.method=='GET':
-
-        oneexpert = collection.find_one({ "id": "5de33f240031bb949dbd684d" },{'_id':0})
-        print(oneexpert.get('id'))
-        a = json.dumps(oneexpert, ensure_ascii=False)
-        print(a)
-        b = json.loads(a)
-        print(b)
-
-        return JsonResponse({})
 

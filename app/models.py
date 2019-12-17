@@ -26,3 +26,38 @@ class Wanfangpro(models.Model):
     class Meta:
         managed = False
         db_table = 'wanfangPro'
+
+
+class User(models.Model):
+    id = models.CharField(primary_key=True, max_length=24)
+    name = models.TextField(blank=True, null=True)
+    pwd = models.TextField(blank=True, null=True)
+    balance = models.TextField(blank=True, null=True)
+    phone_num = models.TextField(blank=True, null=True)
+    expertID = models.TextField(blank=True, null=True)
+    head_url = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'user'
+
+
+class Favorite(models.Model):
+    id = models.CharField(primary_key=True, max_length=24)
+    user_id = models.TextField(blank=False, null=False)
+    paper_id = models.TextField(blank=False, null=False)
+
+    class Meta:
+        managed = False
+        db_table = 'favorite'
+
+
+class Follow(models.Model):
+    id = models.CharField(primary_key=True, max_length=24)
+    user_id = models.TextField(blank=False, null=False)
+    expert_id = models.TextField(blank=False, null=False)
+
+    class Meta:
+        managed = False
+        db_table = 'follow'
+

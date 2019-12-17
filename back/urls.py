@@ -28,4 +28,7 @@ urlpatterns = [
     url(r'^get_papers_info/', views.paperInfo),
     url(r'^get_papers/', views.paperGet),
     url(r'^get_paper_by_id/', views.paperGetID),
+    url(r'^get_favorites/', views.get_favorites),
+    url(r'^get_user/', views.get_user_by_name),
+    url(r'^get_follows/', views.get_follows),
 ]

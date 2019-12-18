@@ -1,7 +1,7 @@
 """back URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/3.0/topics/http/urls/
+    https://docs.djangoproject.com/en/2.2/topics/http/urls/
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -16,6 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from app import views
+from back.settings import *
+from app import views
+from django.conf.urls import url
+from django.conf.urls import include
+from rest_framework import routers
 from django.conf.urls import url
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,6 +33,16 @@ urlpatterns = [
     url(r'^get_experts_by_author_and_unit/',views.get_experts_by_author_and_unit),
     url(r'^api/go_follow/',views.go_follow),
     url(r'^api/go_disfollow/',views.go_disfollow),
+
+    url('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^get_papers_info/', views.paperInfo),
+    url(r'^get_papers/', views.paperGet),
+    url(r'^get_paper_by_id/', views.paperGetID),
+    url(r'^get_favorites/', views.get_favorites),
+    url(r'^get_user/', views.get_user_by_name),
+    url(r'^get_follows/', views.get_follows),
+    url(r'^get_chat_list/', views.get_chat_list),
+    url(r'^post_message/', views.post_message),
 ]
 
 

@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from app.models import User, Follow
-from app.serializers import appSerializer
+# from app.serializers import appSerializer
 from rest_framework import serializers
 from app.zhenzismsclient import *
 import random

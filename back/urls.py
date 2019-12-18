@@ -23,12 +23,12 @@ from django.conf.urls import include
 from rest_framework import routers
 from django.conf.urls import url
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/login', views.login),
-    path('api/sendSms', views.message),
-    path('api/register', views.register),
-    path('api/verify', views.verify),
-    path('api/islogin', views.islogin),
+    url(r'^admin/', admin.site.urls),
+    url(r'^login/', views.login),
+    url(r'^sendSms/', views.message),
+    url(r'^register/', views.register),
+    url(r'^verify/', views.verify),
+    url(r'^islogin/', views.islogin),
     url(r'^get_experts_by_author_and_id/',views.get_experts_by_author_and_id),
     url(r'^get_experts_by_author/',views.get_experts_by_author),
     url(r'^get_experts_by_author_and_unit/',views.get_experts_by_author_and_unit),

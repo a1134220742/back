@@ -1,64 +1,69 @@
-from django.shortcuts import render
-
-# Create your views here.
-from app.models import *
-import json
-from rest_framework import viewsets, filters
-from app.serializers import PaperSerializer
-from app.models import *
+from django.http import HttpResponse
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.http.response import JsonResponse
-from collections import Counter
+from app.models import User
+from app.serializers import appSerializer
+from rest_framework import serializers
+from app.zhenzismsclient import *
+import random
+import json
+import redis
+from django_redis import get_redis_connection
+from django.core.cache import cache
+# Create your views here.
+
+@api_view(['POST'])
+def login(request):
+    postBody = request.body
+    print(request.POST)
+    result = json.loads(postBody)
+    user = User.objects.get(name=result['username'])
+    if(user.pwd == result['password']):
+        request.session['username'] = result['username']
+        return HttpResponse(0)
+    else:
+        return HttpResponse(-1)
 
 
-@api_view(['GET'])
-def paperInfo(request):
-    if request.method=='GET':
-        keyword = request.GET.get('keyword')
-        queryset1 = Wanfangpro.objects.filter(c_title__contains=keyword)
-        queryset2 = Wanfangpro.objects.filter(c_keywords__contains=keyword)
-        queryset3 = Wanfangpro.objects.filter(c_abstract__contains=keyword)
-        queryset = (queryset1|queryset2|queryset3).distinct()
-        li = []
-        au = []
-        for e in queryset:
-            str = e.time[0:4]
-            if str not in li:
-                li.append(str)
-            au = au + e.c_author.split(',')
-        li.sort()
-        au_p = Counter(au).most_common(5)
-        au.clear()
-        for e in au_p:
-            au.append(e[0])
-        data = {
-            'total':queryset.count(),
-            'authors':au,
-            'years':li,
-        }
-        return JsonResponse(data)
+@api_view(['POST'])
+def message(request):
+    postBody = request.body
+    result = json.loads(postBody)
+    code = ''
+    for num in range(1,5):
+        code = code + str(random.randint(0,9))
+    tel = result['phone']
 
+    # Redis
+    cache.set(tel,code)
 
-@api_view(['GET'])
-def paperGet(request):
-    if request.method=='GET':
-        keyword = request.GET.get('keyword')
-        page = int(request.GET.get('page'))
-        queryset1 = Wanfangpro.objects.filter(c_title__contains=keyword)
-        queryset2 = Wanfangpro.objects.filter(c_keywords__contains=keyword)
-        queryset3 = Wanfangpro.objects.filter(c_abstract__contains=keyword)
-        queryset = (queryset1|queryset2|queryset3).distinct()[(page-1)*10:page*10]
-        serializer = PaperSerializer(queryset,many=True)
-        return Response(serializer.data)
+    client = ZhenziSmsClient('https://sms_developer.zhenzikj.com','102458', 'f9ab7d85-bea0-48ef-875b-6895f4838061');
+    params = {'message': '您的验证码为:'+code, 'number': result['phone']};
+    send_result = client.send(params);
+    if(send_result != None):
+        return HttpResponse(0)
+    else:
+        return HttpResponse(-1)
 
+@api_view(['POST'])
+def register(request):
+    postBody = request.body
+    result = json.loads(postBody)
+    user = User.objects.filter(name=result['username'])
+    if user:
+        return HttpResponse(-1)
+    else:
+        user = User.objects.create(name=result['username'], pwd=result['password'], balance=0.00,phone_num=result['phone'])
+        user.save()
+    return HttpResponse(0)
 
-@api_view(['GET'])
-def paperGetID(request):
-    if request.method=='GET':
-        id = request.GET.get('id')
-        queryset = Wanfangpro.objects.filter(id = id)
-        serializer = PaperSerializer(queryset,many=True)
-        return Response(serializer.data)
-
-
+@api_view(['POST'])
+def verify(request):
+    postBody = request.body
+    result = json.loads(postBody)
+    code = cache.get(result['phone'])
+    if(result['code'] == code):
+        return HttpResponse(0)
+    else:
+        return HttpResponse(-1)

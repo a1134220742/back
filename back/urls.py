@@ -31,4 +31,6 @@ urlpatterns = [
     url(r'^get_favorites/', views.get_favorites),
     url(r'^get_user/', views.get_user_by_name),
     url(r'^get_follows/', views.get_follows),
+    url(r'^get_chat_list/', views.get_chat_list),
+    url(r'^post_message/', views.post_message),
 ]

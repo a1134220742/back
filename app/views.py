@@ -7,6 +7,7 @@ from rest_framework import viewsets, filters
 from app.serializers import PaperSerializer
 from app.serializers import UserSerializer
 from app.serializers import FavoriteSerializer
+from app.serializers import ChatSerializer
 from app.models import *
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -129,5 +130,61 @@ def get_follows(request):
         # json_result = json.dumps(result, ensure_ascii=False)
         return JsonResponse(result, safe=False)
 
+
+@api_view(['GET'])
+def get_chat_list(request):
+    if request.method=='GET':
+        username = request.GET.get('name')
+        queryset0 = Chat.objects.filter(sender_name=username)
+        queryset1 = Chat.objects.filter(receiver_name=username)
+        queryset2 = queryset0 | queryset1
+        chats = []
+        for a in queryset2:
+            item = {
+                "date": a.date,
+                "sender": a.sender_name,
+                "receiver": a.receiver_name,
+                "content": a.content
+            }
+            chats.append(item)
+
+        set_mark1 = {i['sender'] for i in chats}
+        set_mark2 = {i['receiver'] for i in chats}
+        set_mark1.update(set_mark2)
+        records = []
+        for mark in set_mark1:  # 分组
+            if mark == username:
+                continue
+            one = [dict_current for dict_current in chats if dict_current['sender'] == mark or dict_current['receiver'] == mark]
+            records.append(one)
+
+        results = []
+        for a in records:
+            a.sort(key=lambda stu: stu["date"])
+            oneresult = {
+                "name": a[0]['sender'],
+                "record": a
+            }
+            results.append(oneresult)
+
+        return JsonResponse(results, safe=False)
+
+
+@api_view(['POST'])
+def post_message(request):
+    post_body = request.body
+    result = json.loads(post_body)
+
+    f=Chat.objects.create(sender_name=result['sender'], receiver_name=result['receiver'], content=result['content'])
+
+    if f:
+        result = {
+            "success": True
+        }
+    else:
+        result = {
+            "success": False
+        }
+    return JsonResponse(result)
 
 

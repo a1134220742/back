@@ -61,3 +61,13 @@ class Follow(models.Model):
         managed = False
         db_table = 'follow'
 
+
+class Chat(models.Model):
+    sender_name = models.TextField(blank=False, null=False)
+    receiver_name = models.TextField(blank=False, null=False)
+    content = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'chat_list'
+

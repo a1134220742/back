@@ -16,11 +16,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from app import views
+from django.conf.urls import url
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/login', views.login),
     path('api/sendSms', views.message),
     path('api/register', views.register),
     path('api/verify', views.verify),
+    url(r'^get_experts_by_author_and_id/',views.get_experts_by_author_and_id),
+    url(r'^get_experts_by_author/',views.get_experts_by_author),
+    url(r'^get_experts_by_author_and_unit/',views.get_experts_by_author_and_unit),
+    url(r'^api/go_follow/',views.go_follow),
+    url(r'^api/go_disfollow/',views.go_disfollow),
 ]
+
 

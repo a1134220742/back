@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/sendSms', views.message),
     path('api/register', views.register),
     path('api/verify', views.verify),
+    path('api/islogin', views.islogin),
     url(r'^get_experts_by_author_and_id/',views.get_experts_by_author_and_id),
     url(r'^get_experts_by_author/',views.get_experts_by_author),
     url(r'^get_experts_by_author_and_unit/',views.get_experts_by_author_and_unit),

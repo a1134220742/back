@@ -1,3 +1,7 @@
+import pymongo
+import gridfs
+from bson import ObjectId
+from pymongo import MongoClient
 from django.http import HttpResponse, JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -37,6 +41,7 @@ import pymongo as pm
 client=pm.MongoClient('10.251.252.10',27017)
 db=client['wanfang']
 collection=db['authorInfoBasic']
+
 
 @api_view(['POST'])
 def login(request):

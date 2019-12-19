@@ -32,9 +32,8 @@ urlpatterns = [
     url(r'^get_experts_by_author_and_id/',views.get_experts_by_author_and_id),
     url(r'^get_experts_by_author/',views.get_experts_by_author),
     url(r'^get_experts_by_author_and_unit/',views.get_experts_by_author_and_unit),
-    url(r'^api/go_follow/',views.go_follow),
-    url(r'^api/go_disfollow/',views.go_disfollow),
-
+    url(r'^go_follow/',views.go_follow),
+    url(r'^go_disfollow/',views.go_disfollow),
     url('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^get_papers_info/', views.paperInfo),
     url(r'^get_papers/', views.paperGet),

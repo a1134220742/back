@@ -636,5 +636,85 @@ def go_disfollow(request):
         Follow.objects.filter(user_id=user_id,expert_id=expert_id).delete()
         return HttpResponse("go_disfollow")
 
+def go_follow_by_user_id_and_author_and_unit(request):
+    client = MongoClient('10.251.252.10', 27017)
+    db = client.wanfang
+    collection = db.authorInfoBasic
+    if request.method=='POST':
+        info=json.loads(request.body)
+        user_id=info['user_id']
+        author=info['author']
+        unit=info['unit']
+        experts = collection.find({'author': author,'unit':unit})
+        expert_id = 0
+        for e in experts:
+            expert_id=e['id']
+        if expert_id == 0:
+            collection.insert_one({'id':'000000000000000000000000','author':author,'unit':unit})
+            expert_id='000000000000000000000000'
+        Follow.objects.create(user_id=user_id,expert_id=expert_id)
+        return HttpResponse("go_follow_by_user_id_and_author_and_unit")
 
+def go_disfollow_by_user_id_and_author_and_unit(request):
+    client = MongoClient('10.251.252.10', 27017)
+    db = client.wanfang
+    collection = db.authorInfoBasic
+    if request.method=='POST':
+        info=json.loads(request.body)
+        user_id=info['user_id']
+        author=info['author']
+        unit=info['unit']
+        experts = collection.find({'author': author,'unit':unit})
+        for e in experts:
+            expert_id=e['id']
+        Follow.objects.filter(user_id=user_id,expert_id=expert_id).delete()
+        return HttpResponse("go_disfollow_by_user_id_and_author_and_unit")
+
+
+
+def get_head_url(request):
+    if request.method=='POST':
+        info=json.loads(request.body)
+        user_id=info['user_id']
+        imageurl=info['imageurl']
+        User.objects.filter(id=user_id).update(head_url=imageurl)
+        return HttpResponse("get_head_url")
+
+
+def application_for_expert(request):
+    if request.method=='POST':
+        info=json.loads(request.body)
+        user_id=info['user_id']
+        real_name=info['real_name']
+        ID_number=info['ID_number']
+        institution=info['institution']
+        credentials_url=info['credentials_url']
+        expert_name=info['author']
+        expert_unit=info['unit']
+        Applicationforexpert.objects.create(user_id=user_id,real_name=real_name,id_number=ID_number,institution=institution,credentials_url=credentials_url,expert_name=expert_name,expert_unit=expert_unit)
+        return HttpResponse("application_for_expert")
+
+
+def handle_the_application(request):
+    if request.method=='POST':
+        info=json.loads(request.body)
+        application=info['application']
+        opt=info['opt']
+        if opt=='0':
+            Applicationforexpert.objects.filter(user_id=application['user_id'],
+                                                real_name=application['real_name'],
+                                                id_number=application['ID_number'],
+                                                institution=application['institution'],
+                                                credentials_url=application['credentials_url'],
+                                                expert_name=application['author'],
+                                                expert_unit=application['unit']).delete()
+        elif opt=='1':
+            client = MongoClient('10.251.252.10', 27017)
+            db = client.wanfang
+            collection = db.authorInfoBasic
+            experts = collection.find({'author': application['author'], 'unit': application['unit']})
+            for e in experts:
+                expert_id=e['id']
+            User.objects.filter(id=application['user_id']).update(expert_id=expert_id)
+        return HttpResponse("handle_the_application")
 

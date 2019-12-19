@@ -8,6 +8,20 @@
 from django.db import models
 
 
+class Applicationforexpert(models.Model):
+    user_id = models.IntegerField(blank=True, null=True)
+    real_name = models.CharField(max_length=45, blank=True, null=True)
+    id_number = models.CharField(db_column='ID_number', max_length=45, blank=True, null=True)  # Field name made lowercase.
+    institution = models.CharField(max_length=45, blank=True, null=True)
+    credentials_url = models.CharField(max_length=100, blank=True, null=True)
+    expert_name = models.CharField(max_length=45, blank=True, null=True)
+    expert_unit = models.CharField(max_length=45, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'applicationForExpert'
+
+
 class AuthGroup(models.Model):
     name = models.CharField(unique=True, max_length=150)
 
@@ -145,15 +159,6 @@ class Follow(models.Model):
     class Meta:
         managed = False
         db_table = 'follow'
-
-
-class Images(models.Model):
-    image_id = models.IntegerField(primary_key=True)
-    image = models.TextField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'images'
 
 
 class User(models.Model):

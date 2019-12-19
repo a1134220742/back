@@ -52,18 +52,18 @@ def login(request):
     user = User.objects.filter(name=result['username'])
     if(user.count()==0):
         result = {"code": "-2", "isexpert": "-1"}
-        return HttpResponse(json.dumps(result), content_type="application/json")
+        return HttpResponse(json.dumps(result,ensure_ascii=False), content_type="application/json")
     if(user[0].pwd == result['password']):
         #request.session['username'] = result['username']
-        if user[0].expertid == None:
+        if user[0].expert_id == None:
             result = {"code": "0","isexpert": "-1","username":user[0].name}
-            return HttpResponse(json.dumps(result),content_type="application/json")
+            return HttpResponse(json.dumps(result,ensure_ascii=False),content_type="application/json")
         else:
             result = {"code": "0", "isexpert": "0","username":user[0].name}
-            return HttpResponse(json.dumps(result), content_type="application/json")
+            return HttpResponse(json.dumps(result,ensure_ascii=False), content_type="application/json")
     else:
         result = {"code": "-1", "isexpert": "-1"}
-        return HttpResponse(json.dumps(result), content_type="application/json")
+        return HttpResponse(json.dumps(result,ensure_ascii=False), content_type="application/json")
 
 
 @api_view(['POST'])

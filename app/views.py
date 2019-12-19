@@ -55,7 +55,7 @@ def login(request):
         return HttpResponse(json.dumps(result), content_type="application/json")
     if(user[0].pwd == result['password']):
         #request.session['username'] = result['username']
-        if user[0].expertid == None:
+        if user[0].expert_id == None:
             result = {"code": "0","isexpert": "-1","username":user[0].name}
             return HttpResponse(json.dumps(result),content_type="application/json")
         else:
@@ -131,27 +131,35 @@ def islogin(request):
 def paperInfo(request):
     if request.method=='GET':
         keyword = request.GET.get('keyword')
-        queryset1 = Wanfangpro.objects.filter(c_title__contains=keyword)
-        queryset2 = Wanfangpro.objects.filter(c_keywords__contains=keyword)
-        queryset3 = Wanfangpro.objects.filter(c_abstract__contains=keyword)
-        queryset = (queryset1|queryset2|queryset3).distinct()
+        es = Elasticsearch([{'host': '10.251.252.10', 'port': 9200}])
+        re = es.search(
+            body={
+                'query': {
+                    'multi_match': {
+                        'query': keyword,
+                        'fields': ['c_title', 'c_keywords', 'c_abstract']
+
+                    }
+                }
+            }
+        )
         li = []
         au = []
-        for e in queryset:
-            str = e.time[0:4]
+        for res in re['hits']['hits']:
+            str=res['_source']["time"][0:4]
             if str not in li:
                 li.append(str)
-            au = au + e.c_author.split(',')
+            au = au + res['_source']["c_author"].split(',')
         li.sort()
         au_p = Counter(au).most_common(5)
         au.clear()
         for e in au_p:
             au.append(e[0])
         data = {
-            'total':queryset.count(),
-            'authors':au,
-            'years':li,
-        }
+             'total':re["hits"]["total"]["value"],
+             'authors':au,
+             'years':li,
+         }
         return JsonResponse(data)
 
 
@@ -172,8 +180,6 @@ def paperGet(request):
                  },
                  "from":(page-1)*10
              }
-
-
          )
         li = []
         for res in re['hits']['hits']:
@@ -184,6 +190,150 @@ def paperGet(request):
         # queryset = (queryset1|queryset2|queryset3).distinct()[(page-1)*10:page*10]
         # serializer = PaperSerializer(queryset,many=True)
         return Response(json.dumps(li,ensure_ascii=False))
+
+
+@api_view(['GET'])
+def paperGetByYear(request):
+    if request.method=='GET':
+        keyword = request.GET.get('keyword')
+        page = int(request.GET.get('page'))
+        year = request.GET.get('year')
+        es = Elasticsearch([{'host': '10.251.252.10', 'port': 9200}])
+        re = es.search(
+             body={
+                 'query': {
+                     'bool':{
+                        'must':[
+                            {
+                                'multi_match': {
+                                    'query': keyword,
+                                    'fields': ['c_title', 'c_keywords', 'c_abstract']
+
+                                }
+                            },
+                            {
+                                "match_phrase": {
+                                    "time": year
+                                }
+                            }
+
+                        ]
+                 }
+                 },
+                 "from":(page-1)*10
+             }
+         )
+        li = []
+        for res in re['hits']['hits']:
+            li.append(res['_source'])
+        return Response(json.dumps(li,ensure_ascii=False))
+
+
+@api_view(['GET'])
+def paperGetByAuthor(request):
+    if request.method=='GET':
+        keyword = request.GET.get('keyword')
+        page = int(request.GET.get('page'))
+        author = request.GET.get('author')
+        es = Elasticsearch([{'host': '10.251.252.10', 'port': 9200}])
+        re = es.search(
+             body={
+                 'query': {
+                     'bool':{
+                        'must':[
+                            {
+                                'multi_match': {
+                                    'query': keyword,
+                                    'fields': ['c_title', 'c_keywords', 'c_abstract']
+
+                                }
+                            },
+                            {
+                                "match_phrase": {
+                                    "c_author": author
+                                }
+                            }
+
+                        ]
+                 }
+                 },
+                 "from":(page-1)*10
+             }
+         )
+        li = []
+        for res in re['hits']['hits']:
+            li.append(res['_source'])
+        return Response(json.dumps(li,ensure_ascii=False))
+
+
+@api_view(['GET'])
+def paperGetByYearTotal(request):
+    if request.method=='GET':
+        keyword = request.GET.get('keyword')
+        year = request.GET.get('year')
+        es = Elasticsearch([{'host': '10.251.252.10', 'port': 9200}])
+        re = es.search(
+             body={
+                 'query': {
+                     'bool':{
+                        'must':[
+                            {
+                                'multi_match': {
+                                    'query': keyword,
+                                    'fields': ['c_title', 'c_keywords', 'c_abstract']
+
+                                }
+                            },
+                            {
+                                "match_phrase": {
+                                    "time": year
+                                }
+                            }
+
+                        ]
+                 }
+                 }
+             }
+         )
+        data = {
+            'total': re["hits"]["total"]["value"]
+        }
+        return JsonResponse(data)
+
+
+@api_view(['GET'])
+def paperGetByAuthorTotal(request):
+    if request.method=='GET':
+        keyword = request.GET.get('keyword')
+        author = request.GET.get('author')
+        es = Elasticsearch([{'host': '10.251.252.10', 'port': 9200}])
+        re = es.search(
+             body={
+                 'query': {
+                     'bool':{
+                        'must':[
+                            {
+                                'multi_match': {
+                                    'query': keyword,
+                                    'fields': ['c_title', 'c_keywords', 'c_abstract']
+
+                                }
+                            },
+                            {
+                                "match_phrase": {
+                                    "c_author": author
+                                }
+                            }
+
+                        ]
+                 }
+                 }
+             }
+         )
+        data = {
+            'total': re["hits"]["total"]["value"]
+        }
+        return JsonResponse(data)
 
 
 @api_view(['GET'])

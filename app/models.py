@@ -8,6 +8,17 @@
 from django.db import models
 
 
+class User(models.Model):
+    name = models.CharField(max_length=20)
+    pwd = models.CharField(max_length=20)
+    balance = models.IntegerField(blank=True, null=True)
+    phone_num = models.CharField(max_length=20)
+
+    class Meta:
+        managed = False
+        db_table = 'user'
+
+
 class Wanfangpro(models.Model):
     id = models.CharField(primary_key=True, max_length=24)
     c_abstract = models.TextField(blank=True, null=True)

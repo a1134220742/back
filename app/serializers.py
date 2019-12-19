@@ -21,6 +21,6 @@ class FavoriteSerializer(serializers.HyperlinkedModelSerializer):
 
 class ChatSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = Chat
+        model = ChatList
         fields =('sender_name','receiver_name','content')
 

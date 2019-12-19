@@ -49,19 +49,21 @@ def login(request):
     postBody = request.body
     print(request.POST)
     result = json.loads(postBody)
-    user = User.objects.get(name=result['username'])
-    if(user.pwd == result['password']):
+    user = User.objects.filter(name=result['username'])
+    if(user.count()==0):
+        result = {"code": "-2", "isexpert": "-1"}
+        return HttpResponse(json.dumps(result), content_type="application/json")
+    if(user[0].pwd == result['password']):
         #request.session['username'] = result['username']
-        if user.expertid == None:
-            result = {"code": "0","isexpert": "-1","username":user.name}
+        if user[0].expertid == None:
+            result = {"code": "0","isexpert": "-1","username":user[0].name}
             return HttpResponse(json.dumps(result),content_type="application/json")
         else:
-            result = {"code": "0", "isexpert": "0","username":user.name}
+            result = {"code": "0", "isexpert": "0","username":user[0].name}
             return HttpResponse(json.dumps(result), content_type="application/json")
     else:
         result = {"code": "-1", "isexpert": "-1"}
         return HttpResponse(json.dumps(result), content_type="application/json")
-
 
 
 @api_view(['POST'])
@@ -79,10 +81,12 @@ def message(request):
     client = ZhenziSmsClient('https://sms_developer.zhenzikj.com','102458', 'f9ab7d85-bea0-48ef-875b-6895f4838061');
     params = {'message': '您的验证码为:'+code, 'number': result['phone']};
     send_result = client.send(params);
-    if(send_result != None):
+    send_result = json.loads(send_result)
+    if(send_result["code"]==0):
         return HttpResponse(0)
     else:
         return HttpResponse(-1)
+
 
 @api_view(['POST'])
 def register(request):
@@ -96,6 +100,7 @@ def register(request):
         user.save()
     return HttpResponse(0)
 
+
 @api_view(['POST'])
 def verify(request):
     postBody = request.body
@@ -106,12 +111,13 @@ def verify(request):
     else:
         return HttpResponse(-1)
 
+
 @api_view(['POST'])
 def islogin(request):
     postBody = request.body
     result = json.loads(postBody)
     user = User.objects.filter(name=result['username'])
-    if user:
+    if user.count()>0:
         info = {"login" : "1"}
         info2 = serializers.serialize("json",user)
         info["userinfo"] = json.loads(info2)
@@ -120,7 +126,6 @@ def islogin(request):
         info = {"login" : "-1","userinfo":"null"}
         return HttpResponse(json.dumps(info),content_type="application/json")
 
-from django.shortcuts import render
 
 @api_view(['GET'])
 def paperInfo(request):
@@ -197,6 +202,10 @@ def get_favorites(request):
         queryset0 = User.objects.filter(name = name)
         user_id = queryset0[0].id
         queryset1 = Favorite.objects.filter(user_id = user_id)
+
+        if queryset1.count() == 0:
+            return Response([])
+
         queryset3 = Wanfangpro.objects.filter(id = queryset1[0].id)
         for a in queryset1:
             queryset2 = Wanfangpro.objects.filter(id = a.paper_id)
@@ -205,12 +214,13 @@ def get_favorites(request):
         serializer = PaperSerializer(queryset3,many=True)
         return Response(serializer.data)
 
+
 @api_view(['GET'])
 def get_user_by_name(request):
     if request.method == 'GET':
         name = request.GET.get('name')
         queryset1 = User.objects.filter(name = name)
-        if queryset1[0].expertID :
+        if queryset1[0].expert_id :
             data = {
                 "userType": "expert",
                 "phoneNumber": queryset1[0].phone_num,
@@ -232,10 +242,17 @@ def get_follows(request):
         queryset0 = User.objects.filter(name = username)
         user_id = queryset0[0].id
         queryset1 = Follow.objects.filter(user_id = user_id)
+
+        if queryset1.count() == 0:
+            return Response([])
+
         result = []
         for a in queryset1:
-            oneexpert = User.objects.filter(id = a.expert_id)
-            head_url = oneexpert[0].head_url
+            oneexpert = User.objects.filter(expert_id = a.expert_id)
+            if len(oneexpert):
+                head_url = oneexpert[0].head_url
+            else:
+                head_url = None
 
             oneexpert = collection.find_one({ "id": a.expert_id },{'_id':0})
 
@@ -255,9 +272,13 @@ def get_follows(request):
 def get_chat_list(request):
     if request.method=='GET':
         username = request.GET.get('name')
-        queryset0 = Chat.objects.filter(sender_name=username)
-        queryset1 = Chat.objects.filter(receiver_name=username)
+        queryset0 = ChatList.objects.filter(sender_name=username)
+        queryset1 = ChatList.objects.filter(receiver_name=username)
         queryset2 = queryset0 | queryset1
+
+        if queryset2.count() == 0:
+            return Response([])
+
         chats = []
         for a in queryset2:
             item = {
@@ -281,13 +302,21 @@ def get_chat_list(request):
         results = []
         for a in records:
             a.sort(key=lambda stu: stu["date"])
-            oneresult = {
-                "name": a[0]['sender'],
-                "record": a
-            }
+            if a[0]['sender'] == username:
+                oneresult = {
+                    "name": a[0]['receiver'],
+                    "record": a
+                }
+            else:
+                oneresult = {
+                    "name": a[0]['sender'],
+                    "record": a
+                }
             results.append(oneresult)
 
         return JsonResponse(results, safe=False)
+
+
 
 
 @api_view(['POST'])
@@ -295,14 +324,19 @@ def post_message(request):
     post_body = request.body
     result = json.loads(post_body)
 
-    f=Chat.objects.create(sender_name=result['sender'], receiver_name=result['receiver'], content=result['content'])
+    chatlist = ChatList.objects.create(sender_name=result['sender'], receiver_name=result['receiver'], content=result['content'])
+    chatlist.save()
 
-    if f:
+    if chatlist:
         result = {
             "success": True
         }
     else:
-        return HttpResponse(-1)
+        result = {
+            "success": False
+        }
+    return JsonResponse(result)
+
 
 @api_view(['GET'])
 def get_experts_by_author(request):
@@ -317,12 +351,14 @@ def get_experts_by_author(request):
             author_and_unit.append({'author':e['author'],'unit':e['unit']})
         return JsonResponse(author_and_unit,safe=False)
 
+
 @api_view(['GET'])
 def get_experts_by_author_and_unit(request):
     if request.method == 'GET':
         unit = request.GET.get('unit')
         author = request.GET.get('author')
         return get_expertinfo(unit,author)
+
 
 @api_view(['GET'])
 def get_experts_by_author_and_id(request):
@@ -335,6 +371,7 @@ def get_experts_by_author_and_id(request):
         expert=collection.find({'id':id,'author':author})[0]
         unit=expert['unit']
         return get_expertinfo(unit,author)
+
 
 def get_expertinfo(unit,author):
         #总文献量
@@ -429,6 +466,7 @@ def get_expertinfo(unit,author):
         return JsonResponse({'literature_num':literature_num,'core_num':core_num,'quoted_num':quoted_num,'avg_quoted':avg_quoted,\
                              'research_interest':research_interest,'line_data':line_data,'related_scholars':related_scholars,'cooperation_scholar':cooperation_scholar})
 
+
 def go_follow(request):
     if request.method=='POST':
         info=json.loads(request.body)
@@ -437,6 +475,7 @@ def go_follow(request):
         expert_id=info['expert_id']
         Follow.objects.create(user_id=user_id,expert_id=expert_id)
         return HttpResponse("go_follow")
+
 
 def go_disfollow(request):
     if request.method=='POST':

@@ -90,7 +90,7 @@ def get_user_by_name(request):
     if request.method == 'GET':
         name = request.GET.get('name')
         queryset1 = User.objects.filter(name = name)
-        if queryset1[0].expertID :
+        if queryset1[0].expert_id :
             data = {
                 "userType": "expert",
                 "phoneNumber": queryset1[0].phone_num,
@@ -114,8 +114,11 @@ def get_follows(request):
         queryset1 = Follow.objects.filter(user_id = user_id)
         result = []
         for a in queryset1:
-            oneexpert = User.objects.filter(id = a.expert_id)
-            head_url = oneexpert[0].head_url
+            oneexpert = User.objects.filter(expert_id = a.expert_id)
+            if len(oneexpert):
+                head_url = oneexpert[0].head_url
+            else:
+                head_url = None
 
             oneexpert = collection.find_one({ "id": a.expert_id },{'_id':0})
 
@@ -135,8 +138,8 @@ def get_follows(request):
 def get_chat_list(request):
     if request.method=='GET':
         username = request.GET.get('name')
-        queryset0 = Chat.objects.filter(sender_name=username)
-        queryset1 = Chat.objects.filter(receiver_name=username)
+        queryset0 = ChatList.objects.filter(sender_name=username)
+        queryset1 = ChatList.objects.filter(receiver_name=username)
         queryset2 = queryset0 | queryset1
         chats = []
         for a in queryset2:
@@ -161,10 +164,16 @@ def get_chat_list(request):
         results = []
         for a in records:
             a.sort(key=lambda stu: stu["date"])
-            oneresult = {
-                "name": a[0]['sender'],
-                "record": a
-            }
+            if a[0]['sender'] == username:
+                oneresult = {
+                    "name": a[0]['receiver'],
+                    "record": a
+                }
+            else:
+                oneresult = {
+                    "name": a[0]['sender'],
+                    "record": a
+                }
             results.append(oneresult)
 
         return JsonResponse(results, safe=False)
@@ -175,9 +184,10 @@ def post_message(request):
     post_body = request.body
     result = json.loads(post_body)
 
-    f=Chat.objects.create(sender_name=result['sender'], receiver_name=result['receiver'], content=result['content'])
+    chatlist = ChatList.objects.create(sender_name=result['sender'], receiver_name=result['receiver'], content=result['content'])
+    chatlist.save()
 
-    if f:
+    if chatlist:
         result = {
             "success": True
         }

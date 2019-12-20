@@ -733,3 +733,31 @@ def get_iffollowed(request):
         iffollowed=Follow.objects.filter(user_id=user_id,expert_id=expert_id)
         ret='0' if len(iffollowed)==0 else '1'
         return JsonResponse({'iffollowed': ret})
+
+@api_view(['GET'])
+def test(request):
+    if request.method=='GET':
+        keyword = request.GET.get('keyword')
+        page = int(request.GET.get('page'))
+        # es = Elasticsearch([{'host': '10.251.252.10', 'port': 9200}])
+        # re = es.search(
+        #      body={
+        #          'query': {
+        #              'multi_match': {
+        #                  'query': keyword,
+        #                  'fields': ['c_title', 'c_keywords', 'c_abstract']
+        #
+        #              }
+        #          },
+        #          "from":(page-1)*10
+        #      }
+        #  )
+        # li = []
+        # for res in re['hits']['hits']:
+        #     li.append(res['_source'])
+        queryset1 = Wanfangpro.objects.filter(c_title__contains=keyword)
+        queryset2 = Wanfangpro.objects.filter(c_keywords__contains=keyword)
+        queryset3 = Wanfangpro.objects.filter(c_abstract__contains=keyword)
+        queryset = (queryset1|queryset2|queryset3).distinct()[(page-1)*10:page*10]
+        serializer = PaperSerializer(queryset,many=True)
+        return Response(serializer.data)

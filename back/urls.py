@@ -53,6 +53,7 @@ urlpatterns = [
     url(r'^application_for_expert/',views.application_for_expert),
     url(r'^handle_the_application/',views.handle_the_application),
     url(r'^api/get_iffollowed/',views.get_iffollowed),
+    url(r'^test/', views.test)
 ]
 
 

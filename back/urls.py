@@ -57,7 +57,7 @@ urlpatterns = [
     url(r'^get_iffollowed/',views.get_iffollowed),
     url(r'^newest/',views.newest),
     url(r'^api/get_iffollowed/',views.get_iffollowed),
-    url(r'^test/', views.test)
+    url(r'^get_id_by_name/',views.get_id_by_name)
 ]
 
 

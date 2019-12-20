@@ -529,8 +529,10 @@ def get_experts_by_author_and_id(request):
         author = request.GET.get('author')
         expert=collection.find({'id':id,'author':author})[0]
         unit=expert['unit']
-        return get_expertinfo(unit,author)
-
+        data={
+            "unit":unit
+        }
+        return JsonResponse(data,safe=False)
 
 def get_expertinfo(unit,author):
         #总文献量
@@ -775,3 +777,12 @@ def admin_getData(request):
 
 
 
+def get_id_by_name(request):
+    if request.method=='POST':
+        info = json.loads(request.body)
+        username = info['username']
+        user = User.objects.filter(name=username)
+        data={
+            "id":user[0].id
+        }
+        return JsonResponse(data,safe=False)

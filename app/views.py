@@ -192,7 +192,7 @@ def paperGet(request):
         # queryset3 = Wanfangpro.objects.filter(c_abstract__contains=keyword)
         # queryset = (queryset1|queryset2|queryset3).distinct()[(page-1)*10:page*10]
         # serializer = PaperSerializer(queryset,many=True)
-        return Response(json.dumps(li,ensure_ascii=False))
+        return Response(li)
 
 
 @api_view(['GET'])
@@ -232,7 +232,7 @@ def paperGetByYear(request):
             del res['_source']['type']
             del res['_source']['@version']
             li.append(res['_source'])
-        return Response(json.dumps(li,ensure_ascii=False))
+        return Response(li)
 
 
 @api_view(['GET'])
@@ -272,7 +272,7 @@ def paperGetByAuthor(request):
             del res['_source']['type']
             del res['_source']['@version']
             li.append(res['_source'])
-        return Response(json.dumps(li,ensure_ascii=False))
+        return Response(li)
 
 
 @api_view(['GET'])

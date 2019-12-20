@@ -183,6 +183,9 @@ def paperGet(request):
          )
         li = []
         for res in re['hits']['hits']:
+            del res['_source']['@timestamp']
+            del res['_source']['type']
+            del res['_source']['@version']
             li.append(res['_source'])
         # queryset1 = Wanfangpro.objects.filter(c_title__contains=keyword)
         # queryset2 = Wanfangpro.objects.filter(c_keywords__contains=keyword)

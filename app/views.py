@@ -742,3 +742,10 @@ def get_iffollowed(request):
         iffollowed=Follow.objects.filter(user_id=user_id,expert_id=expert_id)
         ret='0' if len(iffollowed)==0 else '1'
         return JsonResponse({'iffollowed': ret})
+
+def newest(request):
+    articles=Wanfangpro.objects.filter(id__contains='5de')[0:9]
+    ret=[]
+    for article in articles:
+        ret.append({'id':article.id,'title':article.c_title,'url':article.url})
+    return JsonResponse(ret,safe=False)

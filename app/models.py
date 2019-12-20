@@ -7,14 +7,6 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 
-class Administrator(models.Model):
-    name = models.CharField(primary_key=True, max_length=100)
-    password = models.CharField(max_length=100, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'administrator'
-
 
 class Administrator(models.Model):
     name = models.CharField(primary_key=True, max_length=100)

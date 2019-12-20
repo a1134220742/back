@@ -52,12 +52,10 @@ urlpatterns = [
     url(r'^get_head_url/',views.get_head_url),
     url(r'^application_for_expert/',views.application_for_expert),
     url(r'^handle_the_application/',views.handle_the_application),
-    url(r'^api/admin/login',views.admin_login),
-    url(r'^api/admin/getData',views.admin_getData),
+    url(r'^admin_login/',views.admin_login),
+    url(r'^admin_getData/',views.admin_getData),
     url(r'^get_iffollowed/',views.get_iffollowed),
     url(r'^newest/',views.newest),
-    url(r'^admin/login/',views.admin_login),
-    url(r'^admin/getData/',views.admin_getData),
 ]
 
 

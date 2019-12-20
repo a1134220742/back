@@ -529,10 +529,8 @@ def get_experts_by_author_and_id(request):
         author = request.GET.get('author')
         expert=collection.find({'id':id,'author':author})[0]
         unit=expert['unit']
-        data={
-            "unit":unit
-        }
-        return JsonResponse(data,safe=False)
+        return JsonResponse({"unit":unit})
+
 
 
 def get_expertinfo(unit,author):

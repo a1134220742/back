@@ -56,6 +56,7 @@ urlpatterns = [
     url(r'^admin_getData/',views.admin_getData),
     url(r'^get_iffollowed/',views.get_iffollowed),
     url(r'^newest/',views.newest),
+    url(r'^get_id_by_name/',views.get_id_by_name),
 ]
 
 

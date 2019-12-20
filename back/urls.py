@@ -47,11 +47,15 @@ urlpatterns = [
     url(r'^get_follows/', views.get_follows),
     url(r'^get_chat_list/', views.get_chat_list),
     url(r'^post_message/', views.post_message),
-    url(r'^api/go_follow_by_user_id_and_author_and_unit/',views.go_follow_by_user_id_and_author_and_unit),
-    url(r'^api/go_disfollow_by_user_id_and_author_and_unit/',views.go_disfollow_by_user_id_and_author_and_unit),
-    url(r'^api/get_head_url/',views.get_head_url),
+    url(r'^go_follow_by_user_id_and_author_and_unit/',views.go_follow_by_user_id_and_author_and_unit),
+    url(r'^go_disfollow_by_user_id_and_author_and_unit/',views.go_disfollow_by_user_id_and_author_and_unit),
+    url(r'^get_head_url/',views.get_head_url),
     url(r'^application_for_expert/',views.application_for_expert),
     url(r'^handle_the_application/',views.handle_the_application),
+    url(r'^admin_login/',views.admin_login),
+    url(r'^admin_getData/',views.admin_getData),
+    url(r'^get_iffollowed/',views.get_iffollowed),
+    url(r'^newest/',views.newest),
     url(r'^api/get_iffollowed/',views.get_iffollowed),
     url(r'^test/', views.test)
 ]

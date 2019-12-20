@@ -700,31 +700,27 @@ def application_for_expert(request):
         credentials_url=info['credentials_url']
         expert_name=info['author']
         expert_unit=info['unit']
-        Applicationforexpert.objects.create(user_id=user_id,real_name=real_name,id_number=ID_number,institution=institution,credentials_url=credentials_url,expert_name=expert_name,expert_unit=expert_unit)
+        temp=Applicationforexpert.objects.latest('id')
+        Applicationforexpert.objects.create(id=temp.id+1,user_id=user_id,real_name=real_name,id_number=ID_number,institution=institution,credentials_url=credentials_url,expert_name=expert_name,expert_unit=expert_unit)
         return HttpResponse("application_for_expert")
-
 
 def handle_the_application(request):
     if request.method=='POST':
         info=json.loads(request.body)
-        application=info['application']
+        application_id=info['application_id']
         opt=info['opt']
         if opt=='0':
-            Applicationforexpert.objects.filter(user_id=application['user_id'],
-                                                real_name=application['real_name'],
-                                                id_number=application['ID_number'],
-                                                institution=application['institution'],
-                                                credentials_url=application['credentials_url'],
-                                                expert_name=application['author'],
-                                                expert_unit=application['unit']).delete()
+            Applicationforexpert.objects.filter(id=application_id).delete()
         elif opt=='1':
             client = MongoClient('10.251.252.10', 27017)
             db = client.wanfang
             collection = db.authorInfoBasic
-            experts = collection.find({'author': application['author'], 'unit': application['unit']})
+            application=Applicationforexpert.objects.filter(id=application_id)[0]
+            experts = collection.find({'author': application.expert_name, 'unit': application.expert_unit})
             for e in experts:
                 expert_id=e['id']
-            User.objects.filter(id=application['user_id']).update(expert_id=expert_id)
+            User.objects.filter(id=application.user_id).update(expert_id=expert_id)
+            Applicationforexpert.objects.filter(id=application_id).delete()
         return HttpResponse("handle_the_application")
 
 @api_view(['GET'])
@@ -749,3 +745,23 @@ def newest(request):
     for article in articles:
         ret.append({'id':article.id,'title':article.c_title,'url':article.url})
     return JsonResponse(ret,safe=False)
+
+def admin_login(request):
+    if request.method=='POST':
+        info=json.loads(request.body)
+        username=info['username']
+        password=info['password']
+        administrator=Administrator.objects.filter(name=username)[0]
+        ret= 0 if administrator.password == password else -1
+        return HttpResponse(ret)
+
+def admin_getData(request):
+    if request.method=='GET':
+        all=Applicationforexpert.objects.filter()
+        ret=[]
+        for application in all:
+            ret.append({'id':application.id,'user_id':application.user_id,'real_name':application.real_name,
+                        'ID_number':application.id_number,'institution':application.institution,
+                        'credentials_url':application.credentials_url,'expert_name':application.expert_name,
+                        'expert_unit':application.expert_unit})
+        return JsonResponse(ret,safe=False)

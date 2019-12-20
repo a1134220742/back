@@ -230,8 +230,11 @@ def paperGetByYear(request):
          )
         li = []
         for res in re['hits']['hits']:
+            del res['_source']['@timestamp']
+            del res['_source']['type']
+            del res['_source']['@version']
             li.append(res['_source'])
-        return Response(json.dumps(li,ensure_ascii=False))
+        return Response(li)
 
 
 @api_view(['GET'])
@@ -267,8 +270,11 @@ def paperGetByAuthor(request):
          )
         li = []
         for res in re['hits']['hits']:
+            del res['_source']['@timestamp']
+            del res['_source']['type']
+            del res['_source']['@version']
             li.append(res['_source'])
-        return Response(json.dumps(li,ensure_ascii=False))
+        return Response(li)
 
 
 @api_view(['GET'])

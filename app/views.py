@@ -718,3 +718,18 @@ def handle_the_application(request):
             User.objects.filter(id=application['user_id']).update(expert_id=expert_id)
         return HttpResponse("handle_the_application")
 
+@api_view(['GET'])
+def get_iffollowed(request):
+    if request.method=='GET':
+        user_id=request.GET.get('user_id')
+        author=request.GET.get('author')
+        unit=request.GET.get('unit')
+        client = MongoClient('10.251.252.10', 27017)
+        db = client.wanfang
+        collection = db.authorInfoBasic
+        experts = collection.find({'author': author, 'unit': unit})
+        for e in experts:
+            expert_id = e['id']
+        iffollowed=Follow.objects.filter(user_id=user_id,expert_id=expert_id)
+        ret='0' if len(iffollowed)==0 else '1'
+        return JsonResponse({'iffollowed': ret})

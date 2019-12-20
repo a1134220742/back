@@ -178,7 +178,8 @@ def paperGet(request):
 
                      }
                  },
-                 "from":(page-1)*10
+                 "from":(page-1)*10,
+                 "size":10
              }
          )
         li = []
@@ -186,13 +187,14 @@ def paperGet(request):
             del res['_source']['@timestamp']
             del res['_source']['type']
             del res['_source']['@version']
+            # if(len(res['_source'])!=0):
             li.append(res['_source'])
         # queryset1 = Wanfangpro.objects.filter(c_title__contains=keyword)
         # queryset2 = Wanfangpro.objects.filter(c_keywords__contains=keyword)
         # queryset3 = Wanfangpro.objects.filter(c_abstract__contains=keyword)
         # queryset = (queryset1|queryset2|queryset3).distinct()[(page-1)*10:page*10]
         # serializer = PaperSerializer(queryset,many=True)
-        return Response(json.dumps(li,ensure_ascii=False))
+        return Response(li)
 
 
 @api_view(['GET'])

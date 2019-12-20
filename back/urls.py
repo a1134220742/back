@@ -54,6 +54,8 @@ urlpatterns = [
     url(r'^handle_the_application/',views.handle_the_application),
     url(r'^get_iffollowed/',views.get_iffollowed),
     url(r'^newest/',views.newest),
+    url(r'^admin/login/',views.admin_login),
+    url(r'^admin/getData/',views.admin_getData),
 ]
 
 

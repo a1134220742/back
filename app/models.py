@@ -8,7 +8,17 @@
 from django.db import models
 
 
+class Administrator(models.Model):
+    name = models.CharField(primary_key=True, max_length=100)
+    password = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'administrator'
+
+
 class Applicationforexpert(models.Model):
+    id = models.IntegerField(primary_key=True)
     user_id = models.IntegerField(blank=True, null=True)
     real_name = models.CharField(max_length=45, blank=True, null=True)
     id_number = models.CharField(db_column='ID_number', max_length=45, blank=True, null=True)  # Field name made lowercase.

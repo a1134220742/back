@@ -785,3 +785,14 @@ def get_id_by_name(request):
             "id":user[0].id
         }
         return JsonResponse(data,safe=False)
+
+
+def if_user_exist(request):
+    if request.method=='POST':
+        info = json.loads(request.body)
+        username = info['username']
+        user = User.objects.filter(name=username)
+        if(user.count()==0):
+            return JsonResponse({"exist":"0"})
+        else:
+            return JsonResponse({"exist":"1"})

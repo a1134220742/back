@@ -405,30 +405,23 @@ def get_follows(request):
         queryset0 = User.objects.filter(name=username)
         user_id = queryset0[0].id
         queryset1 = Follow.objects.filter(user_id=user_id)
-
+        # print(json.dumps(list(queryset1),ensure_ascii=False))
+        #
         if queryset1.count() == 0:
-            return Response([])
+             return Response([])
 
         result = []
         for a in queryset1:
-            oneexpert = User.objects.filter(expert_id=a.expert_id)
-            if len(oneexpert):
-                head_url = oneexpert[0].head_url
-            else:
-                head_url = None
-
-            oneexpert = collection.find_one({"id": a.expert_id}, {'_id': 0})
-
-            data = {
-                "name": oneexpert.get('author'),
-                "location": oneexpert.get('unit'),
-                "avatar": head_url,
-                "isFollowed": True
-            }
-            result.append(data)
-
-        # json_result = json.dumps(result, ensure_ascii=False)
-        return JsonResponse(result, safe=False)
+            oneexpert = collection.find({"_id": ObjectId(a.expert_id)})
+            for e in oneexpert:
+                data = {
+                    "name": e['author'],
+                    "location": e['unit'],
+                    "avatar": '',
+                    "isFollowed": True
+                }
+                result.append(data)
+        return Response(result)
 
 
 @api_view(['GET'])
@@ -718,7 +711,7 @@ def go_disfollow_by_user_id_and_author_and_unit(request):
         experts = collection.find({'author': author, 'unit': unit})
         for e in experts:
             expert_id = e['_id']
-            Follow.objects.filter(user_id=user_id, expert_id=expert_id).delete()
+        Follow.objects.filter(user_id=user_id, expert_id=expert_id).delete()
         return HttpResponse("go_disfollow_by_user_id_and_author_and_unit")
 
 

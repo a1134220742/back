@@ -698,7 +698,7 @@ def go_follow_by_user_id_and_author_and_unit(request):
         experts = collection.find({'author': author, 'unit': unit})
         expert_id = 0
         for e in experts:
-            expert_id = e['id']
+            expert_id = e['_id']
         if expert_id == 0:
             collection.insert_one({'id': '000000000000000000000000', 'author': author, 'unit': unit})
             expert_id = '000000000000000000000000'
@@ -717,8 +717,8 @@ def go_disfollow_by_user_id_and_author_and_unit(request):
         unit = info['unit']
         experts = collection.find({'author': author, 'unit': unit})
         for e in experts:
-            expert_id = e['id']
-        Follow.objects.filter(user_id=user_id, expert_id=expert_id).delete()
+            expert_id = e['_id']
+            Follow.objects.filter(user_id=user_id, expert_id=expert_id).delete()
         return HttpResponse("go_disfollow_by_user_id_and_author_and_unit")
 
 

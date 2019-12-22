@@ -43,6 +43,8 @@ urlpatterns = [
     url(r'^get_paper_total_by_author/', views.paperGetByAuthorTotal),
     url(r'^get_paper_by_id/', views.paperGetID),
     url(r'^get_favorites/', views.get_favorites),
+    url(r'^add_favorites/', views.add_favorites),
+    url(r'^remove_favorites/', views.remove_favorites),
     url(r'^get_user/', views.get_user_by_name),
     url(r'^get_follows/', views.get_follows),
     url(r'^get_chat_list/', views.get_chat_list),
@@ -56,8 +58,7 @@ urlpatterns = [
     url(r'^admin_getData/',views.admin_getData),
     url(r'^get_iffollowed/',views.get_iffollowed),
     url(r'^newest/',views.newest),
-    url(r'^api/get_iffollowed/',views.get_iffollowed),
-    url(r'^get_id_by_name/',views.get_id_by_name)
+    url(r'^get_id_by_name/',views.get_id_by_name),
 ]
 
 
